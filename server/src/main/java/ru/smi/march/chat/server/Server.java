@@ -18,7 +18,7 @@ public class Server {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.printf("Сервер запущен на порту: %d, ожидаем подключения клиентов", port);
+            System.out.printf("Сервер запущен на порту: %d, ожидаем подключения клиентов\n", port);
             while (true) {
                 Socket socket = serverSocket.accept();
                 subscribe(new ClientHandler(this, socket));

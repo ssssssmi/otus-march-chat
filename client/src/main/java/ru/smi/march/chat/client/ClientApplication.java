@@ -25,7 +25,6 @@ public class ClientApplication {
                     e.printStackTrace();
                 }
             }).start();
-            // ожидаем что ответит клиент и отправляем на сервер
             while (true) {
                 String msg = scanner.nextLine();
                 out.writeUTF(msg);

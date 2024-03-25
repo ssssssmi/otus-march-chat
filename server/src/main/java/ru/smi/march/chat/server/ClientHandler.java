@@ -24,6 +24,7 @@ public class ClientHandler {
         this.socket = socket;
         this.in = new DataInputStream(socket.getInputStream());
         this.out = new DataOutputStream(socket.getOutputStream());
+        this.generateUsername();
         new Thread(() -> {
             try {
                 DataInputStream in = new DataInputStream(socket.getInputStream());
