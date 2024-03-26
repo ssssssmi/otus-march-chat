@@ -14,6 +14,10 @@ public class ClientHandler {
 
     private static int usersCounter = 0;
 
+    public String getUsername() {
+        return username;
+    }
+
     private void generateUsername() {
         usersCounter++;
         this.username = "user" + usersCounter;
@@ -30,13 +34,16 @@ public class ClientHandler {
                 DataInputStream in = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 System.out.println("Подключился новый клиент");
+                sendMessage("Ваш никнейм: " + username);
                 while (true) {
                     String msg = in.readUTF();
                     if (msg.startsWith("/")) {
                         if (msg.startsWith("/exit")) {
                             System.out.println("Всего доброго");
-                            disconnect();
                             break;
+                        }
+                        if (msg.startsWith("/w")) {
+                            sendPrivateMessage(msg);
                         }
                         continue;
                     }
@@ -55,6 +62,21 @@ public class ClientHandler {
             out.writeUTF(msg);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void sendPrivateMessage(String message) {
+        String[] splitMsg = message.split(" ");
+        String nickname = splitMsg[1];
+        String msgForUser = "Сообщение от " + username + ": ";
+        for (int i = 2; i < splitMsg.length; i++) {
+            msgForUser += splitMsg[i] + " ";
+        }
+        if (server.getUserByUsername(nickname) == null) {
+            sendMessage("Клиент с никнеймом не найден");
+        } else {
+            server.getUserByUsername(nickname).sendMessage(msgForUser);
+            sendMessage("Сообщение отправлено клиенту с никнеймом " + nickname);
         }
     }
 
