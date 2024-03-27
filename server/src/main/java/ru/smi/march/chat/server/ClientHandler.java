@@ -66,12 +66,9 @@ public class ClientHandler {
     }
 
     public void sendPrivateMessage(String message) {
-        String[] splitMsg = message.split(" ");
+        String[] splitMsg = message.split(" ", 3);
         String nickname = splitMsg[1];
-        String msgForUser = "Сообщение от " + username + ": ";
-        for (int i = 2; i < splitMsg.length; i++) {
-            msgForUser += splitMsg[i] + " ";
-        }
+        String msgForUser = "Сообщение от " + username + ": " + splitMsg[2];
         if (server.getUserByUsername(nickname) == null) {
             sendMessage("Клиент с никнеймом не найден");
         } else {
