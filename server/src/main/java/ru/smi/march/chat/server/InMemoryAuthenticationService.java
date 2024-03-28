@@ -8,10 +8,12 @@ public class InMemoryAuthenticationService implements AuthenticationService{
         private String login;
         private String password;
         private String nickname;
-        public User(String login, String password, String nickname) {
+        private UserRole userRole;
+        public User(String login, String password, String nickname, UserRole userRole) {
             this.login = login;
             this.password = password;
             this.nickname = nickname;
+            this.userRole = userRole;
         }
     }
     private List<User> users;
@@ -19,7 +21,7 @@ public class InMemoryAuthenticationService implements AuthenticationService{
     public InMemoryAuthenticationService() {
         this.users = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            this.users.add(new User("login" + i, "pass" + i, "nick" + i));
+            this.users.add(new User("login" + i, "pass" + i, "nick" + i, UserRole.USER));
         }
     }
 
@@ -34,14 +36,14 @@ public class InMemoryAuthenticationService implements AuthenticationService{
     }
 
     @Override
-    public boolean register(String login, String password, String nickname) {
+    public boolean register(String login, String password, String nickname, UserRole userRole) {
         if (isLoginAlreadyExist(login)) {
             return false;
         }
         if (isNicknameAlreadyExist(nickname)) {
             return false;
         }
-        users.add(new User(login, password, nickname));
+        users.add(new User(login, password, nickname, userRole));
         return true;
     }
 
@@ -60,6 +62,16 @@ public class InMemoryAuthenticationService implements AuthenticationService{
         for (User u : users) {
             if (u.nickname.equals(nickname)) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAdmin(String nickname) {
+        for (User u : users) {
+            if (u.nickname.equals(nickname)) {
+                return u.userRole == UserRole.ADMIN;
             }
         }
         return false;
