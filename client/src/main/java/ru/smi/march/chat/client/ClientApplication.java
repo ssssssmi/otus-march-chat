@@ -12,7 +12,7 @@ public class ClientApplication {
         try (
                 Socket socket = new Socket("localhost", 8189);
                 DataInputStream in = new DataInputStream(socket.getInputStream());
-                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream())
         ) {
             System.out.println("Подключились к серверу");
             new Thread(() -> {
