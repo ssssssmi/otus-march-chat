@@ -3,12 +3,13 @@ package ru.smi.march.chat.server;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryAuthenticationService implements AuthenticationService{
+public class InMemoryAuthenticationService implements AuthenticationService {
     private class User {
         private String login;
         private String password;
         private String nickname;
         private UserRole userRole;
+
         public User(String login, String password, String nickname, UserRole userRole) {
             this.login = login;
             this.password = password;
@@ -16,6 +17,7 @@ public class InMemoryAuthenticationService implements AuthenticationService{
             this.userRole = userRole;
         }
     }
+
     private List<User> users;
 
     public InMemoryAuthenticationService() {

@@ -41,6 +41,8 @@ public class ClientHandler {
             if (msg.startsWith("/")) {
                 if (msg.startsWith("/exit")) {
                     break;
+                } else if (msg.startsWith("/w ")) {
+                    sendPrivateMessage(msg);
                 } else if (msg.startsWith("/kick ")) {
                     // /kick nickname
                     String[] tokens = msg.split(" ");
@@ -49,7 +51,8 @@ public class ClientHandler {
                         kickedClient.disconnect();
                         System.out.println("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
                     } else {
-                        //sendMessageToUser("Только пользователи с ролью admin могут тут кого-то кикать");
+                        server.getUserByUsername(kickedClient.getNickname())
+                                .sendMessage("Только пользователи с ролью admin могут тут кого-то кикать");
                     }
                 }
                 continue;
@@ -128,7 +131,7 @@ public class ClientHandler {
     public void sendPrivateMessage(String message) {
         String[] splitMsg = message.split(" ", 3);
         String nickname = splitMsg[1];
-        String msgForUser = "Сообщение от " + username + ": " + splitMsg[2];
+        String msgForUser = "Сообщение от " + nickname + ": " + splitMsg[2];
         if (server.getUserByUsername(nickname) == null) {
             sendMessage("Клиент с никнеймом не найден");
         } else {
