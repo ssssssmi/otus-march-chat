@@ -55,9 +55,9 @@ public class Server {
         }
     }
 
-    public ClientHandler getUserByUsername(String name) {
+    public ClientHandler getClientByNickname(String name) {
         for (ClientHandler c : clients) {
-            if (c.getUsername().equals(name)) {
+            if (c.getNickname().equals(name)) {
                 return c;
             }
         }
