@@ -55,6 +55,15 @@ public class Server {
         }
     }
 
+    public ClientHandler getUserByUsername(String name) {
+        for (ClientHandler c : clients) {
+            if (c.getUsername().equals(name)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
     public synchronized boolean isNicknameBusy(String nickname) {
         for (ClientHandler c : clients) {
             if (c.getNickname().equals(nickname)) {
@@ -63,5 +72,4 @@ public class Server {
         }
         return false;
     }
-
 }
