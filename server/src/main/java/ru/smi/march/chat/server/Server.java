@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Server {
 
@@ -49,6 +50,21 @@ public class Server {
         broadcastMessage("Из чата вышел " + clientHandler.getNickname());
     }
 
+    public synchronized UserRole addRole(String nickname) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Регистрируется новый клиент " + nickname + ", какую роль ему присвоить (admin/user)?");
+        while (true) {
+            String role = scanner.nextLine();
+            if (role.equals("admin")) {
+                return UserRole.ADMIN;
+            }
+            if (role.equals("user")) {
+                return UserRole.USER;
+            }
+            System.out.println("Такой роли нет, только admin или user");
+        }
+    }
+
     public void broadcastMessage(String message) {
         for (ClientHandler c : clients) {
             c.sendMessage(message);
@@ -71,5 +87,14 @@ public class Server {
             }
         }
         return false;
+    }
+
+    public synchronized ClientHandler getClientByNickname(String nickname) {
+        for (ClientHandler c : clients) {
+            if (c.getNickname().equals(nickname)) {
+                return c;
+            }
+        }
+        return null;
     }
 }

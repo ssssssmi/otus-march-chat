@@ -41,6 +41,19 @@ public class ClientHandler {
             if (msg.startsWith("/")) {
                 if (msg.startsWith("/exit")) {
                     break;
+                } else if (msg.startsWith("/w ")) {
+                    sendPrivateMessage(msg);
+                } else if (msg.startsWith("/kick ")) {
+                    // /kick nickname
+                    String[] tokens = msg.split(" ");
+                    ClientHandler kickedClient = server.getClientByNickname(tokens[1]);
+                    if (server.getAuthenticationService().isAdmin(this.nickname)) {
+                        kickedClient.disconnect();
+                        sendMessage("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
+                    } else {
+                        server.getUserByUsername(kickedClient.getNickname())
+                                .sendMessage("Только пользователи с ролью admin могут тут кого-то кикать");
+                    }
                 }
                 continue;
             } else if (msg.startsWith("/w ")) {
@@ -84,6 +97,7 @@ public class ClientHandler {
                 String login = tokens[1];
                 String password = tokens[2];
                 String nickname = tokens[3];
+
                 if (server.getAuthenticationService().isLoginAlreadyExist(login)) {
                     sendMessage("Указанный логин уже занят");
                     continue;
@@ -92,7 +106,7 @@ public class ClientHandler {
                     sendMessage("Указанный никнейм уже занят");
                     continue;
                 }
-                if (!server.getAuthenticationService().register(login, password, nickname)) {
+                if (!server.getAuthenticationService().register(login, password, nickname, server.addRole(nickname))) {
                     sendMessage("Не удалось пройти регистрацию");
                     continue;
                 }
