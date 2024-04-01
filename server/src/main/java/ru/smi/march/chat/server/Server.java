@@ -71,15 +71,6 @@ public class Server {
         }
     }
 
-    public ClientHandler getClientByNickname(String name) {
-        for (ClientHandler c : clients) {
-            if (c.getNickname().equals(name)) {
-                return c;
-            }
-        }
-        return null;
-    }
-
     public synchronized boolean isNicknameBusy(String nickname) {
         for (ClientHandler c : clients) {
             if (c.getNickname().equals(nickname)) {
