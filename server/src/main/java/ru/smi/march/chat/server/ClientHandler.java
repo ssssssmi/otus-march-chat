@@ -49,7 +49,7 @@ public class ClientHandler {
                     ClientHandler kickedClient = server.getClientByNickname(tokens[1]);
                     if (server.getAuthenticationService().isAdmin(this.nickname)) {
                         kickedClient.disconnect();
-                        System.out.println("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
+                        sendMessage("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
                     } else {
                         server.getUserByUsername(kickedClient.getNickname())
                                 .sendMessage("Только пользователи с ролью admin могут тут кого-то кикать");
