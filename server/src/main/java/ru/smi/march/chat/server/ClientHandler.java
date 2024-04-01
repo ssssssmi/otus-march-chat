@@ -56,6 +56,8 @@ public class ClientHandler {
                     }
                 }
                 continue;
+            } else if (msg.startsWith("/w ")) {
+                sendPrivateMessage(msg);
             }
             server.broadcastMessage(nickname + ": " + msg);
         }
@@ -132,10 +134,10 @@ public class ClientHandler {
         String[] splitMsg = message.split(" ", 3);
         String nickname = splitMsg[1];
         String msgForUser = "Сообщение от " + nickname + ": " + splitMsg[2];
-        if (server.getUserByUsername(nickname) == null) {
+        if (server.getClientByNickname(nickname) == null) {
             sendMessage("Клиент с никнеймом не найден");
         } else {
-            server.getUserByUsername(nickname).sendMessage(msgForUser);
+            server.getClientByNickname(nickname).sendMessage(msgForUser);
             sendMessage("Сообщение отправлено клиенту с никнеймом " + nickname);
         }
     }
