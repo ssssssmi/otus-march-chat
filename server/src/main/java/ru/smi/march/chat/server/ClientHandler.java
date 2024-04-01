@@ -51,7 +51,7 @@ public class ClientHandler {
                         kickedClient.disconnect();
                         sendMessage("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
                     } else {
-                        server.getUserByUsername(kickedClient.getNickname())
+                        server.getClientByNickname(kickedClient.getNickname())
                                 .sendMessage("Только пользователи с ролью admin могут тут кого-то кикать");
                     }
                 }
