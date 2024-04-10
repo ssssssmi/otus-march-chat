@@ -1,9 +1,11 @@
 package ru.smi.march.chat.server;
 
+import java.sql.SQLException;
+
 public interface AuthenticationService {
-    String getNicknameByLoginAndPassword(String login, String password);
-    boolean register(String login, String password, String nickname, UserRole userRole);
+    boolean register(String nickname, String login, String password);
     boolean isAdmin(String nickname);
     boolean isLoginAlreadyExist(String login);
     boolean isNicknameAlreadyExist(String nickname);
+    String getNicknameByLoginAndPassword(String login, String password);
 }

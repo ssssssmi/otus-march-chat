@@ -1,58 +1,33 @@
 package ru.smi.march.chat.server;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.SQLException;
 
-public class InMemoryAuthenticationService implements AuthenticationService {
-    private class User {
-        private String login;
-        private String password;
-        private String nickname;
-        private UserRole userRole;
+import static ru.smi.march.chat.server.JDBCUserService.roles;
+import static ru.smi.march.chat.server.JDBCUserService.users;
 
-        public User(String login, String password, String nickname, UserRole userRole) {
-            this.login = login;
-            this.password = password;
-            this.nickname = nickname;
-            this.userRole = userRole;
-        }
-    }
-
-    private List<User> users;
-
-    public InMemoryAuthenticationService() {
-        this.users = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
-            this.users.add(new User("login" + i, "pass" + i, "nick" + i, UserRole.USER));
-        }
-    }
+public class InMemoryAuthenticationService implements AuthenticationService{
 
     @Override
-    public String getNicknameByLoginAndPassword(String login, String password) {
-        for (User u : users) {
-            if (u.login.equals(login) && u.password.equals(password)) {
-                return u.nickname;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public boolean register(String login, String password, String nickname, UserRole userRole) {
+    public boolean register(String nickname, String login, String password) {
         if (isLoginAlreadyExist(login)) {
             return false;
         }
         if (isNicknameAlreadyExist(nickname)) {
             return false;
         }
-        users.add(new User(login, password, nickname, userRole));
+        try {
+            JDBCUserService.addUserToBase(nickname, login, password);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
     @Override
     public boolean isLoginAlreadyExist(String login) {
-        for (User u : users) {
-            if (u.login.equals(login)) {
+        for (User u : users.values()) {
+            if (u.getLogin().equals(login)) {
                 return true;
             }
         }
@@ -61,8 +36,8 @@ public class InMemoryAuthenticationService implements AuthenticationService {
 
     @Override
     public boolean isNicknameAlreadyExist(String nickname) {
-        for (User u : users) {
-            if (u.nickname.equals(nickname)) {
+        for (String n : users.keySet()) {
+            if (n.equals(nickname)) {
                 return true;
             }
         }
@@ -71,11 +46,22 @@ public class InMemoryAuthenticationService implements AuthenticationService {
 
     @Override
     public boolean isAdmin(String nickname) {
-        for (User u : users) {
-            if (u.nickname.equals(nickname)) {
-                return u.userRole == UserRole.ADMIN;
+        for (String n : users.keySet())
+            for (Role r : roles) {
+                if (n.equals(nickname))
+                    return r.getName().equals("admin");
             }
-        }
         return false;
+    }
+
+    @Override
+    public String getNicknameByLoginAndPassword(String login, String password) {
+        for (String n : users.keySet())
+            for (User u : users.values()) {
+                if (u.getLogin().equals(login) && u.getPassword().equals(password)) {
+                    return n;
+                }
+        }
+        return null;
     }
 }

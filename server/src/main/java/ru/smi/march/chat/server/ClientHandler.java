@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class ClientHandler {
     private Server server;
@@ -98,7 +99,7 @@ public class ClientHandler {
                 String password = tokens[2];
                 String nickname = tokens[3];
 
-                if (server.getAuthenticationService().isLoginAlreadyExist(login)) {
+                if (server.getAuthenticationService().isLoginAlreadyExist(nickname)) {
                     sendMessage("Указанный логин уже занят");
                     continue;
                 }
@@ -106,7 +107,10 @@ public class ClientHandler {
                     sendMessage("Указанный никнейм уже занят");
                     continue;
                 }
-                if (!server.getAuthenticationService().register(login, password, nickname, server.addRole(nickname))) {
+                try {
+                    server.getAuthenticationService().register(nickname, login, password);
+                    JDBCUserService.addUserRoleToBase(nickname, server.addRole(nickname));
+                } catch (Exception e) {
                     sendMessage("Не удалось пройти регистрацию");
                     continue;
                 }
