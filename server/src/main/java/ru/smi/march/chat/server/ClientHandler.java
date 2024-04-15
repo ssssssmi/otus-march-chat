@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.sql.SQLException;
 
 public class ClientHandler {
     private Server server;
@@ -12,10 +11,7 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String nickname;
-
-    public String getNickname() {
-        return nickname;
-    }
+    private UserRole role;
 
     public ClientHandler(Server server, Socket socket) throws IOException {
         this.server = server;
@@ -36,6 +32,10 @@ public class ClientHandler {
         }).start();
     }
 
+    public String getNickname() {
+        return nickname;
+    }
+
     private void communicate() throws IOException {
         while (true) {
             String msg = in.readUTF();
@@ -48,7 +48,7 @@ public class ClientHandler {
                     // /kick nickname
                     String[] tokens = msg.split(" ");
                     ClientHandler kickedClient = server.getClientByNickname(tokens[1]);
-                    if (server.getAuthenticationService().isAdmin(this.nickname)) {
+                    if (role == UserRole.ADMIN) {
                         kickedClient.disconnect();
                         sendMessage("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
                     } else {
@@ -68,6 +68,7 @@ public class ClientHandler {
         while (true) {
             String msg = in.readUTF();
             if (msg.startsWith("/auth ")) {
+                // /auth login pass
                 String[] tokens = msg.split(" ");
                 if (tokens.length != 3) {
                     sendMessage("Некорректный формат запроса");
@@ -75,7 +76,9 @@ public class ClientHandler {
                 }
                 String login = tokens[1];
                 String password = tokens[2];
-                String nickname = server.getAuthenticationService().getNicknameByLoginAndPassword(login, password);
+                //запрос в базе данных юзера по логпасу
+                String nickname = server.getJDBCService().checkUserInBase(login, password);
+                this.nickname = nickname;
                 if (nickname == null) {
                     sendMessage("Неправильный логин/пароль");
                     continue;
@@ -84,34 +87,34 @@ public class ClientHandler {
                     sendMessage("Указанная учетная запись уже занята. Попробуйте зайти позднее");
                     continue;
                 }
-                this.nickname = nickname;
                 server.subscribe(this);
                 sendMessage(nickname + ", добро пожаловать в чат!");
                 return true;
             } else if (msg.startsWith("/register ")) {
-                // /register login pass nickname
+                // /register nickname login pass
                 String[] tokens = msg.split(" ");
                 if (tokens.length != 4) {
                     sendMessage("Некорректный формат запроса");
                     continue;
                 }
-                String login = tokens[1];
+                String nickname = tokens[1];
                 String password = tokens[2];
-                String nickname = tokens[3];
+                String login = tokens[3];
 
-                if (server.getAuthenticationService().isLoginAlreadyExist(nickname)) {
+                if (server.getJDBCService().isLoginAlreadyExist(login)) {
                     sendMessage("Указанный логин уже занят");
                     continue;
                 }
-                if (server.getAuthenticationService().isNicknameAlreadyExist(nickname)) {
+                if (server.getJDBCService().isNicknameAlreadyExist(nickname)) {
                     sendMessage("Указанный никнейм уже занят");
                     continue;
                 }
                 try {
-                    server.getAuthenticationService().register(nickname, login, password);
-                    JDBCUserService.addUserRoleToBase(nickname, server.addRole(nickname));
+                    this.role = server.addRole(nickname);
+                    server.getJDBCService().addUserToBase(nickname, login, password, role);
                 } catch (Exception e) {
                     sendMessage("Не удалось пройти регистрацию");
+                    e.printStackTrace();
                     continue;
                 }
                 this.nickname = nickname;

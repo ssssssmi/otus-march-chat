@@ -8,30 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static ru.smi.march.chat.server.JDBCUserService.roles;
-
 public class Server {
 
     private int port;
     private List<ClientHandler> clients;
-    private AuthenticationService authenticationService;
-    public AuthenticationService getAuthenticationService() {
-        return authenticationService;
-    }
+    private JDBCService jdbcService;
 
     public Server(int port) {
         this.port = port;
         this.clients = new ArrayList<>();
     }
 
+    public JDBCService getJDBCService() {
+        return jdbcService;
+    }
+
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            this.authenticationService = new InMemoryAuthenticationService();
-            JDBCUserService.userMapper();
-            JDBCUserService.roleMapper();
-            System.out.println("Сервис аутентификации запущен: " + authenticationService.getClass().getSimpleName());
+            this.jdbcService = new JDBC();
+            JDBC.connectJDBC();
+            System.out.println("Сервис аутентификации запущен: " + jdbcService.getClass().getSimpleName());
             System.out.printf("Сервер запущен на порту: %d, ожидаем подключения клиентов\n", port);
-
             while (true) {
                 try {
                     Socket socket = serverSocket.accept();
@@ -57,16 +54,16 @@ public class Server {
         broadcastMessage("Из чата вышел " + clientHandler.getNickname());
     }
 
-    public synchronized int addRole(String nickname) {
+    public synchronized UserRole addRole(String nickname) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Регистрируется новый клиент " + nickname + ", какую роль ему присвоить? (введите id роли)");
-        System.out.println(roles);
+        System.out.println("Регистрируется новый клиент " + nickname + ", какую роль ему присвоить (admin/user)?");
         while (true) {
-            int roleID = scanner.nextInt();
-            for (Role r : roles) {
-                if (r.getId() == roleID) {
-                    return roleID;
-                }
+            String role = scanner.nextLine();
+            if (role.equals("admin")) {
+                return UserRole.ADMIN;
+            }
+            if (role.equals("user")) {
+                return UserRole.USER;
             }
             System.out.println("Такой роли нет, только admin или user");
         }
