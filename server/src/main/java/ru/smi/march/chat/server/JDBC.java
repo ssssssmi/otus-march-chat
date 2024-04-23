@@ -5,10 +5,11 @@ import java.sql.*;
 public class JDBC implements JDBCService {
     private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/test";
 
-    private static final String ADD_USER_QUERY = "insert into user (nickname, login, password, role) values (?, ?, ?, ?)";
-    private static final String CHECK_USER_QUERY = "select nickname, login, password from user where login = ? and password = ?";
-    private static final String EXIST_NICKNAME_QUERY = "select nickname from user where nickname = ?";
-    private static final String EXIST_LOGIN_QUERY = "select login from user where login = ?";
+    private static final String ADD_USER_QUERY = "INSERT INTO user (nickname, login, password, role) VALUES (?, ?, ?, ?)";
+    private static final String USERS_QUERY = "SELECT id, nickname, role FROM user WHERE login = ?";
+    private static final String CHECK_USER_QUERY = "SELECT nickname, login, password FROM user WHERE login = ? AND password = ?";
+    private static final String EXIST_NICKNAME_QUERY = "SELECT count(*) FROM user WHERE nickname = ?";
+    private static final String EXIST_LOGIN_QUERY = "SELECT count(*) FROM user WHERE login = ?";
 
     private static Connection connection;
 
@@ -30,7 +31,27 @@ public class JDBC implements JDBCService {
     }
 
     @Override
-    public String checkUserInBase(String login, String password) {
+    public User getUser(String login) {
+        try (PreparedStatement ps = connection.prepareStatement(USERS_QUERY)) {
+            ps.setString(1, login);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int id = rs.getInt("id");
+                    String nickname = rs.getString("nickname");
+                    String role = rs.getString("role");
+                    return new User(id, nickname, login, role);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public String getNicknameIfUserInBase(String login, String password) {
         try (PreparedStatement ps = connection.prepareStatement(CHECK_USER_QUERY)) {
             ps.setString(1, login);
             ps.setString(2, password);
@@ -50,7 +71,8 @@ public class JDBC implements JDBCService {
         try (PreparedStatement ps = connection.prepareStatement(EXIST_NICKNAME_QUERY)) {
             ps.setString(1, nickname);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                int count = rs.next() ? rs.getInt(1) : 0;
+                if (count == 1) {
                     return true;
                 }
             }
@@ -65,7 +87,8 @@ public class JDBC implements JDBCService {
         try (PreparedStatement ps = connection.prepareStatement(EXIST_LOGIN_QUERY)) {
             ps.setString(1, login);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                int count = rs.next() ? rs.getInt(1) : 0;
+                if (count == 1) {
                     return true;
                 }
             }

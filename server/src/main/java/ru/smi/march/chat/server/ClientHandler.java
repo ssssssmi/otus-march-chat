@@ -47,13 +47,20 @@ public class ClientHandler {
                 } else if (msg.startsWith("/kick ")) {
                     // /kick nickname
                     String[] tokens = msg.split(" ");
-                    ClientHandler kickedClient = server.getClientByNickname(tokens[1]);
+                    if (tokens.length != 2) {
+                        sendMessage("Некорректный формат запроса");
+                        continue;
+                    }
                     if (role == UserRole.ADMIN) {
-                        kickedClient.disconnect();
-                        sendMessage("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
+                        if (server.getClientByNickname(tokens[1]) == null) {
+                            sendMessage("Клиент с таким никнеймом не найден");
+                        } else {
+                            ClientHandler kickedClient = server.getClientByNickname(tokens[1]);
+                            kickedClient.disconnect();
+                            sendMessage("Пользователь " + kickedClient.getNickname() + " был выкинут из чата");
+                        }
                     } else {
-                        server.getClientByNickname(kickedClient.getNickname())
-                                .sendMessage("Только пользователи с ролью admin могут тут кого-то кикать");
+                        sendMessage("Только пользователи с ролью admin могут тут кого-то кикать");
                     }
                 }
                 continue;
@@ -77,7 +84,7 @@ public class ClientHandler {
                 String login = tokens[1];
                 String password = tokens[2];
                 //запрос в базе данных юзера по логпасу
-                String nickname = server.getJDBCService().checkUserInBase(login, password);
+                String nickname = server.getJDBCService().getNicknameIfUserInBase(login, password);
                 this.nickname = nickname;
                 if (nickname == null) {
                     sendMessage("Неправильный логин/пароль");
