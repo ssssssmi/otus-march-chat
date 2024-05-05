@@ -3,13 +3,13 @@ package ru.smi.march.chat.server;
 import java.sql.*;
 
 public class JDBC implements JDBCService {
-    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/test";
+    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/postgres";
 
-    private static final String ADD_USER_QUERY = "INSERT INTO user (nickname, login, password, role) VALUES (?, ?, ?, ?)";
-    private static final String USERS_QUERY = "SELECT id, nickname, role FROM user WHERE login = ?";
-    private static final String CHECK_USER_QUERY = "SELECT nickname, login, password FROM user WHERE login = ? AND password = ?";
-    private static final String EXIST_NICKNAME_QUERY = "SELECT count(*) FROM user WHERE nickname = ?";
-    private static final String EXIST_LOGIN_QUERY = "SELECT count(*) FROM user WHERE login = ?";
+    private static final String ADD_USER_QUERY = "INSERT INTO user_data (nickname, login, password, role) VALUES (?, ?, ?, ?)";
+    private static final String USERS_QUERY = "SELECT id, nickname, role FROM user_data WHERE login = ?";
+    private static final String CHECK_USER_QUERY = "SELECT nickname, login, password FROM user_data WHERE login = ? AND password = ?";
+    private static final String EXIST_NICKNAME_QUERY = "SELECT count(*) FROM user_data WHERE nickname = ?";
+    private static final String EXIST_LOGIN_QUERY = "SELECT count(*) FROM user_data WHERE login = ?";
 
     private static Connection connection;
 

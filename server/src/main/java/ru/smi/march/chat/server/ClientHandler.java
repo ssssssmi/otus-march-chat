@@ -105,8 +105,8 @@ public class ClientHandler {
                     continue;
                 }
                 String nickname = tokens[1];
-                String password = tokens[2];
-                String login = tokens[3];
+                String login = tokens[2];
+                String password = tokens[3];
 
                 if (server.getJDBCService().isLoginAlreadyExist(login)) {
                     sendMessage("Указанный логин уже занят");
@@ -119,15 +119,14 @@ public class ClientHandler {
                 try {
                     this.role = server.addRole(nickname);
                     server.getJDBCService().addUserToBase(nickname, login, password, role);
+                    this.nickname = nickname;
+                    server.subscribe(this);
+                    sendMessage("Вы успешно зарегистрировались! " + nickname + ", добро пожаловать в чат!");
+                    return true;
                 } catch (Exception e) {
                     sendMessage("Не удалось пройти регистрацию");
                     e.printStackTrace();
-                    continue;
                 }
-                this.nickname = nickname;
-                server.subscribe(this);
-                sendMessage("Вы успешно зарегистрировались! " + nickname + ", добро пожаловать в чат!");
-                return true;
             } else if (msg.equals("/exit")) {
                 return false;
             } else {
