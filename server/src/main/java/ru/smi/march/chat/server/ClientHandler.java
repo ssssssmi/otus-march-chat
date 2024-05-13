@@ -95,6 +95,7 @@ public class ClientHandler {
                     continue;
                 }
                 server.subscribe(this);
+                this.role = server.getJDBCService().getRole(login);
                 sendMessage(nickname + ", добро пожаловать в чат!");
                 return true;
             } else if (msg.startsWith("/register ")) {

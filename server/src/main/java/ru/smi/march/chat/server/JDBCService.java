@@ -5,6 +5,8 @@ public interface JDBCService {
 
     String getNicknameIfUserInBase(String login, String password);
 
+    UserRole getRole(String login);
+
     Boolean isNicknameAlreadyExist(String nickname);
 
     Boolean isLoginAlreadyExist(String login);
