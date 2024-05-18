@@ -11,6 +11,14 @@
 
     <artifactId>server</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.0</version>
+        </dependency>
+    </dependencies>
+
     <properties>
         <maven.compiler.source>19</maven.compiler.source>
         <maven.compiler.target>19</maven.compiler.target>

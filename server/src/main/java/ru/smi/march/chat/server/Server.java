@@ -3,6 +3,7 @@ package ru.smi.march.chat.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,21 +12,22 @@ public class Server {
 
     private int port;
     private List<ClientHandler> clients;
-    private AuthenticationService authenticationService;
-
-    public AuthenticationService getAuthenticationService() {
-        return authenticationService;
-    }
+    private JDBCService jdbcService;
 
     public Server(int port) {
         this.port = port;
         this.clients = new ArrayList<>();
     }
 
+    public JDBCService getJDBCService() {
+        return jdbcService;
+    }
+
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            this.authenticationService = new InMemoryAuthenticationService();
-            System.out.println("Сервис аутентификации запущен: " + authenticationService.getClass().getSimpleName());
+            this.jdbcService = new JDBC();
+            JDBC.connectJDBC();
+            System.out.println("Сервис аутентификации запущен: " + jdbcService.getClass().getSimpleName());
             System.out.printf("Сервер запущен на порту: %d, ожидаем подключения клиентов\n", port);
             while (true) {
                 try {
@@ -37,6 +39,8 @@ public class Server {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
